@@ -6,8 +6,18 @@ from numpy import savetxt
 import numpy as np
 from tkinter.ttk import *
 from tkinter import *
-import os
 import csv
+import os
+
+def exportblank(username, password):
+  gmatx = np.zeros((5, 10)).tolist()
+  cmatx = np.zeros((5, 10, 2)).tolist()
+  pass1 = password + username + "g.csv"
+  pass2 = password + username + "c.csv"
+  DF = pd.DataFrame(gmatx)
+  DF.to_csv(pass1)
+  DF = pd.DataFrame(cmatx)
+  DF.to_csv(pass2)
 
 
 def getkeyval(dic, val):
@@ -57,6 +67,9 @@ knitpatname = {
 }
 
 
+def login():
+  newWin = Toplevel(win)
+
 def csv_to_list(contents):
   for row_num, rows in enumerate(contents):
     contents[row_num].pop(0)
@@ -85,17 +98,34 @@ def csv_to_list(contents):
 
 class PatternMatrix:
 
-  def __init__(self, username, password):
+  def __init__(self, xsize, ysize, username, password):
+    self.buttons = []
     self.username = username
-    self.gmatrix = []
-    self.cmatrix = []
     self.password = password
-
-  def setmatrix(self, xsize, ysize):
     self.xsize = xsize
     self.ysize = ysize
     self.gmatrix = np.zeros((xsize, ysize)).tolist()  #set board
     self.cmatrix = np.zeros((xsize, ysize, 2)).tolist()
+
+  def storebut(self, buts):
+    self.buttons = buts
+
+  def reshape(self, newx, newy):
+    self.xsize = newx
+    self.ysize = newy
+    self.gmatrix = np.zeros((newx, newy)).tolist()
+    self.cmatrix = np.zeros((newx, newy, 2)).tolist()
+    try:
+      if (os.path.exists(self.fgname) and os.path.isfile(self.fgname)):
+        os.remove(self.fgname)
+      if (os.path.exists(self.fcname) and os.path.isfile(self.fcname)):
+        os.remove(self.fcname)
+    except AttributeError:
+      self.export_matrix(self.username, self.password)
+      if (os.path.exists(self.fgname) and os.path.isfile(self.fgname)):
+        os.remove(self.fgname)
+      if (os.path.exists(self.fcname) and os.path.isfile(self.fcname)):
+        os.remove(self.fcname)
 
   def setpat(self, pat_type, x, y):  #set pattern in matrix
     self.gmatrix[x][y] = pat_type
@@ -149,7 +179,7 @@ class PatternMatrix:
           output.append(row[:])
         file.close()
       output.pop(0)
-      
+      self.gmatrix = csv_to_list(output)
       with open(self.fcname, newline='') as file:
         reader = csv.reader(file, delimiter=',')
         output = []
@@ -157,17 +187,16 @@ class PatternMatrix:
           output.append(row[:])
         file.close()
       output.pop(0)
-      
-      self.gmatrix = csv_to_list(output)
+
       self.cmatrix = csv_to_list(output)
-      print("GMATRIX:----------------------")
-      dismat(self.gmatrix)
+      #print("CMATRIX:----------------------")
+      #dismat(self.gmatrix)
 
     except FileNotFoundError:
       #self.export_matrix(username, password)
       pass
 
-    dismat(self.cmatrix)
+    #dismat(self.cmatrix)
     #dismat(self.gmatrix)
 
   def retmatc(self):
@@ -175,20 +204,3 @@ class PatternMatrix:
 
   def retmatg(self):
     return self.gmatrix
-
-  def reshape(self, newx, newy):
-    self.xsize = newx
-    self.ysize = newy
-    self.gmatrix = np.zeros((newx, newy)).tolist()
-    self.cmatrix = np.zeros((newx, newy, 2)).tolist()
-    try:
-      if (os.path.exists(self.fgname) and os.path.isfile(self.fgname)):
-        os.remove(self.fgname)
-      if (os.path.exists(self.fcname) and os.path.isfile(self.fcname)):
-        os.remove(self.fcname)
-    except AttributeError:
-      self.export_matrix(self.username, self.password)
-      if (os.path.exists(self.fgname) and os.path.isfile(self.fgname)):
-        os.remove(self.fgname)
-      if (os.path.exists(self.fcname) and os.path.isfile(self.fcname)):
-        os.remove(self.fcname)
