@@ -2,7 +2,8 @@ from tkinter import *
 import tkinter as tk
 import csv
 import numpy as np
-
+from PIL import ImageTk, Image
+import pyautogui as pg
 global columns
 global rows
 rows = 0
